@@ -5,8 +5,14 @@
 
 namespace hud {
 
-void Render();
+class Renderer {
+ public:
+  Renderer();
+  ~Renderer();
 
-}
+  void Render();
+};
+
+}  // namespace hud
 
 #endif

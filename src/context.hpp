@@ -21,6 +21,7 @@ struct WindowConfig {
 WindowConfig CreateWindowCfg();
 
 class InputProcessor;
+class Renderer;
 class OpenGLContext {
  public:
   OpenGLContext(WindowConfig& cfg);
@@ -32,6 +33,7 @@ class OpenGLContext {
   GLFWwindow* GetWindow() { return window_; }
 
   void ProcessInput();
+  void Render();
 
  private:
   /// @brief 初始化 GLFW
@@ -41,11 +43,13 @@ class OpenGLContext {
   bool init_result_glfw_{false};             // GLFW 初始化结果
   bool init_result_glad_{false};             // GLAD 初始化结果
   bool init_result_input_processor_{false};  // InputPocessor 初始化结果
+  bool init_result_renderer_{false};         // Renderer 初始化结果
 
   WindowConfig window_config_;
   GLFWwindow* window_{nullptr};
 
   std::unique_ptr<InputProcessor> input_processor_;
+  std::unique_ptr<Renderer> renderer_;
 };
 }  // namespace hud
 

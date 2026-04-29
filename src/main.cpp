@@ -21,7 +21,7 @@ int main() {
     context.ProcessInput();
 
     // 渲染
-    hud::Render();
+    context.Render();
 
     // 检查并调用事件，交换缓冲
     glfwPollEvents();
