@@ -2,6 +2,7 @@
 
 #include "process_input.hpp"
 #include "renderer.hpp"
+#include "shader.hpp"
 
 namespace hud {
 
@@ -36,8 +37,15 @@ bool OpenGLContext::Initialize() {
   }
   init_result_input_processor_ = true;
 
-  // 4. 初始化 Renderer
+  // 4. 初始化 Shader
+  shader_ = std::make_shared<Shader>();
+  if (shader_->Init(vert_shader_path_, frag_shader_path_) == false) {
+    return false;
+  }
+
+  // 5. 初始化 Renderer
   renderer_ = std::make_unique<Renderer>();
+  renderer_->Init(shader_);
   init_result_renderer_ = true;
 
   return true;

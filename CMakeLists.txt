@@ -8,10 +8,12 @@ add_executable(${PROJECT_NAME}
   "src/main.cpp"
   "src/context.cpp"
   "src/renderer.cpp"
+  "src/shader.cpp"
   "src/process_input.cpp"
   "src/callbacks.cpp"
 
   "3rdparty/glad/src/glad.c"
+  "3rdparty/stb/src/stb_image.cpp"
 )
 
 # 第三方库 OpenGL
@@ -34,4 +36,17 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PRIVATE
   optimized  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/GLFW/lib/glfw3-release.lib
   debug  ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/GLFW/lib/glfw3-debug.lib
+)
+
+# 第三方库 stb_image
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/stb/include)
+
+
+# 构建时拷贝资源文件夹 res 到构建目录
+add_custom_command(
+  TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
+  COMMENT "Copying shaders to output directory"
 )

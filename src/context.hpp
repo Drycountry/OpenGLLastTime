@@ -22,6 +22,7 @@ WindowConfig CreateWindowCfg();
 
 class InputProcessor;
 class Renderer;
+class Shader;
 class OpenGLContext {
  public:
   OpenGLContext(WindowConfig& cfg);
@@ -44,12 +45,17 @@ class OpenGLContext {
   bool init_result_glad_{false};             // GLAD 初始化结果
   bool init_result_input_processor_{false};  // InputPocessor 初始化结果
   bool init_result_renderer_{false};         // Renderer 初始化结果
+  bool init_result_shader_{false};           // Shader 初始化结果
 
   WindowConfig window_config_;
   GLFWwindow* window_{nullptr};
 
   std::unique_ptr<InputProcessor> input_processor_;
   std::unique_ptr<Renderer> renderer_;
+  std::shared_ptr<Shader> shader_;
+
+  std::string vert_shader_path_{"shaders/vert.shader"};
+  std::string frag_shader_path_{"shaders/frag.shader"};
 };
 }  // namespace hud
 

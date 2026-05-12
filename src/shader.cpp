@@ -1,6 +1,15 @@
 #include "shader.hpp"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+namespace hud {
+
+Shader::Shader() {}
+
+Shader::~Shader() { glUseProgram(0); }
+
+bool Shader::Init(const std::string& vertexPath, const std::string& fragmentPath) {
+  vert_shader_path_ = vertexPath;
+  frag_shader_path_ = fragmentPath;
+
   // 1. retrieve the vertex/fragment source code from filePath
   std::string vertexCode;
   std::string fragmentCode;
@@ -25,33 +34,41 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     fragmentCode = fShaderStream.str();
   } catch (std::ifstream::failure& e) {
     std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+    return false;
   }
   const char* vShaderCode = vertexCode.c_str();
   const char* fShaderCode = fragmentCode.c_str();
+
   // 2. compile shaders
   unsigned int vertex, fragment;
+
   // vertex shader
   vertex = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vertex, 1, &vShaderCode, NULL);
   glCompileShader(vertex);
-  checkCompileErrors(vertex, "VERTEX");
+  CheckCompileErrors(vertex, "VERTEX");
+
   // fragment Shader
   fragment = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragment, 1, &fShaderCode, NULL);
   glCompileShader(fragment);
-  checkCompileErrors(fragment, "FRAGMENT");
+  CheckCompileErrors(fragment, "FRAGMENT");
+
   // shader Program
-  ID = glCreateProgram();
-  glAttachShader(ID, vertex);
-  glAttachShader(ID, fragment);
-  glLinkProgram(ID);
-  checkCompileErrors(ID, "PROGRAM");
+  id_ = glCreateProgram();
+  glAttachShader(id_, vertex);
+  glAttachShader(id_, fragment);
+  glLinkProgram(id_);
+  CheckCompileErrors(id_, "PROGRAM");
+
   // delete the shaders as they're linked into our program now and no longer necessary
   glDeleteShader(vertex);
   glDeleteShader(fragment);
+
+  return true;
 }
 
-void Shader::checkCompileErrors(unsigned int shader, std::string type) {
+void Shader::CheckCompileErrors(unsigned int shader, std::string type) {
   int success;
   char infoLog[1024];
   if (type != "PROGRAM") {
@@ -70,3 +87,5 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type) {
     }
   }
 }
+
+}  // namespace hud

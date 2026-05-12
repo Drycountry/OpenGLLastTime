@@ -15,6 +15,8 @@ int main() {
   glViewport(win_cfg.pos_x, win_cfg.pos_y, win_cfg.width, win_cfg.height);
   glfwSetFramebufferSizeCallback(window, hud::cb::FrameBufferSizeCallback);
 
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  // 线框模式绘图
+
   // 主循环/游戏循环
   while (!glfwWindowShouldClose(window)) {
     // 处理输入
