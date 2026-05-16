@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
   "src/shader.cpp"
   "src/process_input.cpp"
   "src/callbacks.cpp"
+  "src/texture_loader.cpp"
 
   "3rdparty/glad/src/glad.c"
   "3rdparty/stb/src/stb_image.cpp"
@@ -41,6 +42,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 # 第三方库 stb_image
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/stb/include)
 
+# 第三方库 glm
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glm/include)
 
 # 构建时拷贝资源文件夹 res 到构建目录
 add_custom_command(

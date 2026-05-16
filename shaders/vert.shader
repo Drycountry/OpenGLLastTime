@@ -1,18 +1,14 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
 
-uniform float x_offset;
-
-out vec4 vertex_color;
-out vec3 vertex_pos;
+out vec3 ourColor;
+out vec2 TexCoord;
 
 void main()
 {
-    // 顶点着色器的输出
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-
-    vertex_color = vec4(aColor, 1.0);
-
-    vertex_pos = aPos;
+    gl_Position = vec4(aPos, 1.0);
+    ourColor = aColor;
+    TexCoord = aTexCoord;
 }
