@@ -31,6 +31,9 @@ bool OpenGLContext::Initialize() {
   }
   init_result_glad_ = true;
 
+  // 启用 MSAA 抗锯齿
+  glEnable(GL_MULTISAMPLE);
+
   // 3. 初始化 InputProcessor
   input_processor_ = CreateInputProcessor(window_);
   if (input_processor_ != nullptr) {
@@ -46,6 +49,14 @@ bool OpenGLContext::Initialize() {
   // 5. 初始化 Renderer
   renderer_ = std::make_unique<Renderer>();
   renderer_->Init(shader_);
+
+  // 6. 初始化 HUD Shader 与速度矢量
+  hud_shader_ = std::make_shared<Shader>();
+  if (hud_shader_->Init(hud_vert_shader_path_, hud_frag_shader_path_) == false) {
+    return false;
+  }
+  renderer_->InitHud(hud_shader_);
+
   init_result_renderer_ = true;
 
   return true;
@@ -68,6 +79,7 @@ GLFWwindow* OpenGLContext::InitGlfw() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_SAMPLES, 4);  // 4x MSAA 抗锯齿
 
   GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
   if (window == nullptr) {

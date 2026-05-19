@@ -53,9 +53,12 @@ class OpenGLContext {
   std::unique_ptr<InputProcessor> input_processor_;
   std::unique_ptr<Renderer> renderer_;
   std::shared_ptr<Shader> shader_;
+  std::shared_ptr<Shader> hud_shader_;
 
   std::string vert_shader_path_{"shaders/vert.shader"};
   std::string frag_shader_path_{"shaders/frag.shader"};
+  std::string hud_vert_shader_path_{"shaders/hud_vert.shader"};
+  std::string hud_frag_shader_path_{"shaders/hud_frag.shader"};
 };
 }  // namespace hud
 
