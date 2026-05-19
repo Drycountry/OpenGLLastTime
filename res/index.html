@@ -1,0 +1,398 @@
+<!doctype html>
+
+<body>
+  <h1>MY FIRST SVGs</h1>
+  <p>1mr对应svg中的长度10，线宽为1mr（即10）
+  </p>
+  <h2>飞行航迹标记（速度矢量符）</h2>
+  <svg width="300" height="205" viewBox="0 0 300 205" style="background-color:black">
+    <!-- 速度矢量符号 -->
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <!-- 中心圆 -->
+      <circle cx="150" cy="150" r="50" />
+      <!-- 左侧翼线 -->
+      <line x1="0" y1="150" x2="100" y2="150" />
+      <!-- 右侧翼线 -->
+      <line x1="200" y1="150" x2="300" y2="150" />
+      <!-- 顶部竖线 -->
+      <line x1="150" y1="0" x2="150" y2="100" />
+    </g>
+  </svg>
+  <h2>起落架收放指示符</h2>
+  <svg width="300" height="250" viewBox="0 0 300 250" style="background-color: black;">
+    <!-- 起落架收放指示符 -->
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <!-- 中心圆 -->
+      <circle cx="150" cy="150" r="50" />
+      <!-- 左侧翼线 -->
+      <line x1="0" y1="150" x2="100" y2="150" />
+      <!-- 右侧翼线 -->
+      <line x1="200" y1="150" x2="300" y2="150" />
+      <!-- 顶部竖线 -->
+      <line x1="150" y1="0" x2="150" y2="100" />
+      <!--左起落架-->
+      <line x1="75" y1="150" x2="75" y2="200" />
+      <!--右起落架-->
+      <line x1="225" y1="150" x2="225" y2="200" />
+      <!--前起落架-->
+      <line x1="150" y1="200" x2="150" y2="250" />
+    </g>
+  </svg>
+  <h2>地平线</h2>
+  <svg width="1300" height="10" viewBox="0 0 1300 10">
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <line x1="0" y1="0" x2="500" y2="0"></line>
+      <line x1="800" y1="0" x2="1300" y2="0"></line>
+    </g>
+  </svg>
+  <h2>飞行航迹角刻度线</h2>
+  <svg id="fpa-ladder" width="1000" height="42500" viewBox="0 0 1000 42500" style="background-color: black;">
+    <g id="ladder-group" stroke="#38F84E" stroke-width="10" fill="none" font-family="monospace" font-size="32">
+    </g>
+    <script>
+      (function () {
+        // SVG 基础设置
+        const SVG_NS = 'http://www.w3.org/2000/svg'; // SVG 命名空间
+        const SVG_WIDTH = 1000;   // SVG 视口宽度 (px)
+        const HUD_COLOR = '#38F84E'; // HUD 绿色
+
+        // 角度范围定义
+        const MIN_ANGLE = -85;    // 最小角度 (°)
+        const MAX_ANGLE = 85;    // 最大角度 (°)
+        const ANGLE_STEP = 5;    // 角度步进 (°)
+        const PX_PER_DEG = 250;    // 每度对应像素数
+
+        // 刻度线布局
+        const RUNG_GAP = 300;    // 左右刻度线间隙 (px)
+        const RUNG_LEN = 250;    // 单一方向刻度线长度 (px)
+        const LABEL_GAP = 10;    // 数字与刻度线间距 (px)
+
+        // 短垂线参数
+        const TICK_LEN = 30;    // 短垂线长度 (px)
+        const TICK_OVERLAP = 3;    // 短垂线向刻度线方向的重叠量 (px)
+        const TICK_INSET = 2;    // 短垂线相对刻线内端的水平内缩量 (px)
+
+        // 样式常量
+        const DASH_PATTERN = '70,20'; // 虚线样式 (实线段,间隙段)
+
+        // 计算因子
+        const DEG_TO_RAD = Math.PI / 180; // 角度转弧度
+        const HALF_SLANT = 0.5;           // 刻度线倾斜因子（向地平线倾斜角度的一半）
+
+        let g = document.getElementById('ladder-group');
+        let horizonY = Math.abs(MIN_ANGLE) * PX_PER_DEG;
+
+        let leftX1 = (SVG_WIDTH - RUNG_GAP - 2 * RUNG_LEN) / 2;
+        let leftX2 = leftX1 + RUNG_LEN;
+        let rightX1 = leftX2 + RUNG_GAP;
+        let rightX2 = rightX1 + RUNG_LEN;
+        let rungWidth = RUNG_LEN;
+        let labelLeftX = leftX1 - LABEL_GAP;
+        let labelRightX = rightX2 + LABEL_GAP;
+
+        // Key angles to label
+        let labelAngles = [];
+        for (let a = ANGLE_STEP; a <= MAX_ANGLE; a += ANGLE_STEP) {
+          labelAngles.push(a);
+        }
+
+        for (let angle = MIN_ANGLE; angle <= MAX_ANGLE; angle += ANGLE_STEP) {
+          let y = horizonY - angle * PX_PER_DEG;
+          let slantRad = angle * HALF_SLANT * DEG_TO_RAD;
+          let dy = Math.tan(slantRad) * rungWidth;
+          let dashed = angle < 0;
+
+          if (angle === 0) {
+            // Horizon: solid rung segments with center gap
+            g.appendChild(makeLine(leftX1 - 200, y, leftX2, y, false, null));
+            g.appendChild(makeLine(rightX1, y, rightX2 + 200, y, false, null));
+            continue;
+          }
+
+          // Left rung: inner→outer, starts from tick connection
+          g.appendChild(makeLine(leftX2, y + dy, leftX1, y, dashed, null));
+          // Right rung: inner→outer, starts from tick connection (symmetric)
+          g.appendChild(makeLine(rightX1, y + dy, rightX2, y, dashed, null));
+
+          // F-16 style: short vertical ticks at inner ends, pointing toward horizon
+          let innerY = y + dy;
+          let tickDir = innerY < horizonY ? 1 : -1; // toward horizon
+          g.appendChild(makeLine(leftX2 - TICK_INSET, innerY - tickDir * TICK_OVERLAP,
+            leftX2 - TICK_INSET, innerY + tickDir * TICK_LEN, false, null));
+          g.appendChild(makeLine(rightX1 + TICK_INSET, innerY - tickDir * TICK_OVERLAP,
+            rightX1 + TICK_INSET, innerY + tickDir * TICK_LEN, false, null));
+
+          // Labels for key angles
+          if (labelAngles.indexOf(Math.abs(angle)) !== -1) {
+            let label = angle;
+            g.appendChild(makeText(labelLeftX, y, label, 'end'));
+            g.appendChild(makeText(labelRightX, y, label, 'start'));
+          }
+        }
+
+        function makeLine(x1, y1, x2, y2, dashed, strokeW) {
+          let line = document.createElementNS(SVG_NS, 'line');
+          line.setAttribute('x1', x1);
+          line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2);
+          line.setAttribute('y2', y2);
+          if (strokeW) line.setAttribute('stroke-width', strokeW);
+          if (dashed) line.setAttribute('stroke-dasharray', DASH_PATTERN);
+          return line;
+        }
+
+        function makeText(x, y, text, anchor) {
+          let t = document.createElementNS(SVG_NS, 'text');
+          t.setAttribute('x', x);
+          t.setAttribute('y', y);
+          t.setAttribute('text-anchor', anchor || 'middle');
+          t.setAttribute('dominant-baseline', 'central');
+          t.setAttribute('fill', HUD_COLOR);
+          t.setAttribute('stroke', 'none');
+          t.textContent = text;
+          return t;
+        }
+      })();
+    </script>
+  </svg>
+  <h2>航向角刻度带</h2>
+  <svg id="heading-tape" width="360" height="120" viewBox="0 0 360 120" style="background-color: black;">
+    <g id="heading-group" stroke="#38F84E" stroke-width="10" fill="none" font-family="monospace" font-size="24">
+    </g>
+    <script>
+      (function () {
+        const SVG_NS = 'http://www.w3.org/2000/svg';
+        const HUD_COLOR = '#38F84E';
+
+        const H_START_X = 0;   // 首条刻度线 x 坐标
+        const H_SPACING = 60;   // 相邻刻度线间距 (px/5°)
+        const H_SHORT_LEN = 30;   // 短刻度线长度 (px)
+        const H_LONG_LEN = 60;   // 长刻度线长度 (px)
+        const H_TICK_Y1 = 0;   // 刻度线顶端 y
+        const H_LABEL_Y = 98;   // 数字标注 y
+        const H_LONG_COUNT = 4;   // 长刻度线条数
+
+        const H_MIN_ANGLE = 0;   // 起始角度
+        const H_MAX_ANGLE = (H_LONG_COUNT - 1) * 10; // 结束角度
+        const H_STEP = 5;   // 角度步进
+
+        let g = document.getElementById('heading-group');
+
+        function makeLine(x1, y1, x2, y2) {
+          let line = document.createElementNS(SVG_NS, 'line');
+          line.setAttribute('x1', x1);
+          line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2);
+          line.setAttribute('y2', y2);
+          return line;
+        }
+
+        function makeText(x, y, text) {
+          let t = document.createElementNS(SVG_NS, 'text');
+          t.setAttribute('x', x);
+          t.setAttribute('y', y);
+          t.setAttribute('text-anchor', 'middle');
+          t.setAttribute('dominant-baseline', 'central');
+          t.setAttribute('fill', HUD_COLOR);
+          t.setAttribute('stroke', 'none');
+          t.textContent = text;
+          return t;
+        }
+
+        for (let angle = H_MIN_ANGLE; angle <= H_MAX_ANGLE; angle += H_STEP) {
+          let x = H_START_X + (angle / H_STEP) * H_SPACING;
+          let isLong = (angle % 10 === 0);
+          let len = isLong ? H_LONG_LEN : H_SHORT_LEN;
+          g.appendChild(makeLine(x, H_TICK_Y1, x, H_TICK_Y1 + len));
+          if (isLong) {
+            g.appendChild(makeText(x, H_LABEL_Y, angle));
+          }
+        }
+      })();
+    </script>
+  </svg>
+  <h2>风向指示</h2>
+  <svg width="25" height="300" viewBox="0 0 25 300" style="background-color: black;">
+    <g fill="#38F84E">
+      <!-- 箭头：箭杆 + 箭头 -->
+      <polygon points="12.5,0 0,150 7.5,150 7.5,300 17.5,300 17.5,150 25,150" />
+    </g>
+  </svg>
+  <h2>倾斜角指示</h2>
+  <svg id="bank-idc" width="40" height="34.6" viewBox="0 0 40 34.6" style="background-color: black;">
+    <g id="bank-idc-group" stroke="#38F84E" stroke-width="10" fill="none" font-family="monospace" font-size="20">
+    </g>
+
+    <script>
+      (function () {
+        const SVG_NS = 'http://www.w3.org/2000/svg';
+        function makeLine(x1, y1, x2, y2) {
+          let line = document.createElementNS(SVG_NS, 'line');
+          line.setAttribute('x1', x1);
+          line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2);
+          line.setAttribute('y2', y2);
+          return line;
+        }
+
+        let g = document.getElementById("bank-idc-group");
+        let edge_length = 40; // 等边三角形边长
+        g.appendChild(makeLine(edge_length / 2, 0, 0, edge_length * Math.sqrt(3) / 2));
+        g.appendChild(makeLine(0, edge_length * Math.sqrt(3) / 2, edge_length, edge_length * Math.sqrt(3) / 2));
+        g.appendChild(makeLine(edge_length, edge_length * Math.sqrt(3) / 2, edge_length / 2, 0));
+
+      })()
+    </script>
+  </svg>
+
+  <h2>倾斜角刻度线</h2>
+  <svg id="bank-scale" width="500" height="300" viewBox="0 0 500 300" style="background-color: black;">
+    <g id="bank-group" stroke="#38F84E" stroke-width="10" fill="none" font-family="monospace" font-size="20">
+    </g>
+    <script>
+        (function () {
+          const SVG_NS = 'http://www.w3.org/2000/svg';
+          const HUD_COLOR = '#38F84E';
+
+          const CX = 250;   // 同心圆圆心 x
+          const CY = 20;   // 同心圆圆心 y
+          const R_OUTER = 220;   // 同心圆外半径
+          const LONG_LEN = 50;   // 长刻度线长度
+          const SHORT_LEN = 30;   // 短刻度线长度
+          const R_INNER = R_OUTER - LONG_LEN; // 同心圆内半径（所有刻度线内侧端点所在圆）
+
+          // 长刻度线角度 (°)，0° 为正上方
+          const longAngles = [-60, -30, 0, 30, 60];
+          // 短刻度线角度 (°)
+          const shortAngles = [-45, -20, -10, 10, 20, 45];
+
+          const DEG_TO_RAD = Math.PI / 180;
+
+          let g = document.getElementById('bank-group');
+
+          function makeLine(x1, y1, x2, y2) {
+            let line = document.createElementNS(SVG_NS, 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            return line;
+          }
+
+          function makeText(x, y, text, anchor) {
+            let t = document.createElementNS(SVG_NS, 'text');
+            t.setAttribute('x', x);
+            t.setAttribute('y', y);
+            t.setAttribute('text-anchor', anchor || 'middle');
+            t.setAttribute('dominant-baseline', 'central');
+            t.setAttribute('fill', HUD_COLOR);
+            t.setAttribute('stroke', 'none');
+            t.textContent = text;
+            return t;
+          }
+
+          function drawTick(angle, rOuter) {
+            let rad = angle * DEG_TO_RAD;
+            let sinA = Math.sin(rad);
+            let cosA = Math.cos(rad);
+
+            let xOuter = CX + rOuter * sinA;
+            let yOuter = CY + rOuter * cosA;
+            let xInner = CX + R_INNER * sinA;
+            let yInner = CY + R_INNER * cosA;
+
+            g.appendChild(makeLine(xInner, yInner, xOuter, yOuter));
+          }
+
+          // 绘制短刻度线（内侧端点位于 R_INNER，外侧端点为 R_INNER + SHORT_LEN）
+          for (let i = 0; i < shortAngles.length; i++) {
+            drawTick(shortAngles[i], R_INNER + SHORT_LEN);
+          }
+
+          // 绘制长刻度线（内侧端点位于 R_INNER，外侧端点位于 R_OUTER）
+          for (let i = 0; i < longAngles.length; i++) {
+            drawTick(longAngles[i], R_OUTER);
+          }
+        })();
+    </script>
+  </svg>
+  <h2>迎角误差</h2>
+  <svg width="300" height="380" viewBox="0 0 300 380" style="background-color: black;">
+    <g fill="#38F84E" stroke-width="10" stroke="#38F84E">
+      <line x1="30" y1="0" x2="0" y2="0"></line>
+      <line x1="0" y1="0" x2="0" y2="380"></line>
+      <line x1="0" y1="380" x2="30" y2="380"></line>
+    </g>
+  </svg>
+  <h2>空速条带</h2>
+  <svg width="60" height="500" viewBox="0 0 60 500" style="background-color: black;">
+    <!-- 空速条带 -->
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <!-- 长刻度线1（顶部边界） -->
+      <line x1="0" y1="0" x2="60" y2="0" />
+      <line x1="20" y1="50" x2="60" y2="50" />
+      <line x1="20" y1="100" x2="60" y2="100" />
+      <line x1="20" y1="150" x2="60" y2="150" />
+      <line x1="20" y1="200" x2="60" y2="200" />
+      <!-- 长刻度线2 -->
+      <line x1="0" y1="250" x2="60" y2="250" />
+      <line x1="20" y1="300" x2="60" y2="300" />
+      <line x1="20" y1="350" x2="60" y2="350" />
+      <line x1="20" y1="400" x2="60" y2="400" />
+      <line x1="20" y1="450" x2="60" y2="450" />
+      <!-- 长刻度线3（底部边界） -->
+      <line x1="0" y1="500" x2="60" y2="500" />
+    </g>
+  </svg>
+  <h2>指示标记_10mr</h2>
+  <svg width="100" height="10" viewBox="0 -5 100 10" style="background-color: black;">
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <line x1="0" y1="0" x2="100" y2="0" />
+    </g>
+  </svg>
+
+  <h2>指示标记_25mr</h2>
+  <svg width="250" height="10" viewBox="0 -5 250 10" style="background-color: black;">
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <line x1="0" y1="0" x2="250" y2="0" />
+    </g>
+  </svg>
+
+  <h2>指令标记</h2>
+  <svg id="cmd-idc" width="70" height="81" viewBox="0 0 70 81" style="background-color: black;">
+    <g id="cmd-idc-group" stroke="#38F84E" stroke-width="10" fill="none" font-family="monospace" font-size="20">
+    </g>
+
+    <script>
+      (function () {
+        const SVG_NS = 'http://www.w3.org/2000/svg';
+        function makeLine(x1, y1, x2, y2) {
+          let line = document.createElementNS(SVG_NS, 'line');
+          line.setAttribute('x1', x1);
+          line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2);
+          line.setAttribute('y2', y2);
+          return line;
+        }
+
+        let g = document.getElementById("cmd-idc-group");
+        let height = 70; // 指令标记高度
+        g.appendChild(makeLine(height, 0, 0, height / Math.sqrt(3)));
+        g.appendChild(makeLine(0, height / Math.sqrt(3), 70, height / Math.sqrt(3) * 2));
+
+      })()
+    </script>
+  </svg>
+  <h2>垂直偏差杆_50mr</h2>
+  <svg width="500" height="10" viewBox="0 -5 500 10" style="background-color: black;">
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <line x1="0" y1="0" x2="500" y2="0" />
+    </g>
+  </svg>
+  <h2>水平偏差杆_50mr</h2>
+  <svg width="10" height="500" viewBox="-5 0 10 500 " style="background-color: black;">
+    <g stroke="#38F84E" stroke-width="10" fill="none">
+      <line x1="0" y1="0" x2="0" y2="500" />
+    </g>
+  </svg>
+</body>
